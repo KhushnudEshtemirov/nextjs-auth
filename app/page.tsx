@@ -7,8 +7,6 @@ export default function Home() {
 
   if (status === "loading") return <p>Loading...</p>;
 
-  console.log(session);
-
   return (
     <main>
       <h2>Home Page</h2>

@@ -1,42 +1,36 @@
 import type { NextAuthOptions } from "next-auth";
-import GitHubProvider from "next-auth/providers/github";
 import CredentialsProvider from "next-auth/providers/credentials";
 
 export const options: NextAuthOptions = {
   providers: [
-    GitHubProvider({
-      clientId: process.env.GITHUB_ID as string,
-      clientSecret: process.env.GITHUB_SECRET as string,
-    }),
     CredentialsProvider({
-      name: "Credentials",
-      credentials: {
-        username: {
-          label: "Username:",
-          type: "text",
-          placeholder: "Your username",
-        },
-        password: {
-          label: "Password:",
-          type: "password",
-          placeholder: "Your password",
-        },
-      },
-      async authorize(credentials) {
-        const user = { id: "42", name: "Dave", password: "nextauth" };
+      name: "credentials",
+      credentials: {},
 
-        if (
-          credentials?.username === user.name &&
-          credentials?.password === user.password
-        ) {
+      async authorize(credentials) {
+        const { email, password } = credentials as any;
+        const response = await fetch(
+          "https://api.muxlisa.uz/v1/api/users/api-token-auth/",
+          {
+            method: "POST",
+            body: JSON.stringify({ email, password }),
+            headers: {
+              "Access-Control-Allow-Origin": "*",
+            },
+          }
+        );
+
+        const user = await response.json();
+
+        console.log("Hello");
+
+        if (user) {
           return user;
-        } else {
-          return null;
-        }
+        } else null;
       },
     }),
   ],
-  // pages: {
-  //   signIn: "/signin",
-  // },
+  pages: {
+    signIn: "/api/auth/signin",
+  },
 };
